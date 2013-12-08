@@ -5,8 +5,6 @@ Created on 8 Dec 2013
 '''
 import urllib
 import urllib2
-import os
-import random
 
 def post(url, post_data_dictionary):
     http_headers = {'User-Agent':'OWN'}
