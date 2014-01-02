@@ -11,7 +11,7 @@ def post(url, post_data_dictionary):
     post_data_encoded = urllib.urlencode(post_data_dictionary)
     request_object = urllib2.Request(url, post_data_encoded,http_headers)
     response = urllib2.urlopen(request_object)
-    print response
+    print response.read()
 
 def prepare_data( dataList ):
     fieldNames = ["track", "driver", "carClass", "carName", "sector1", "sector2", "sector3", "lapTime", "date", "total"]
