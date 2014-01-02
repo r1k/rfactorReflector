@@ -29,12 +29,16 @@ if __name__ == '__main__':
 
     url = "http://localhost:12080/"
 
-    post_data_dictionary = {'driverName':"test",
-                            "carClass":"GT1",
-                            "carName":"Ubuntu",
-                            "trackName":1,
-                            "firstSector":1,
-                            "secondSector":3,
-                            "totalTime":5 }
+    post_data_dictionary = {"track":"Hedge End SupoerStores", 
+                            "driver":"Neil Ricketts",
+                            "carClass":"Hot hatch",
+                            "carName":"Vauxhall Astra", 
+                            "sector1": '30', 
+                            "sector2": '60', 
+                            "sector3": '90', 
+                            "lapTime": '180',
+                            "date":"1999-12-31", 
+                            "total":180
+                            }
 
     post (url, post_data_dictionary)
