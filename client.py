@@ -13,6 +13,18 @@ def post(url, post_data_dictionary):
     response = urllib2.urlopen(request_object)
     print response
 
+def prepare_data( dataList ):
+    fieldNames = ["track", "driver", "carClass", "carName", "sector1", "sector2", "sector3", "lapTime", "date", "total"]
+    post_data_dictionary = {}
+    for field in range(len(dataList)):
+        if fieldNames[field] == "date":
+            temp = dataList[field].split('-')
+            date_string = '%(year)s-%(month)s-%(day)s' % {"year":temp[2], "month":temp[1], "day":temp[0]}
+        else:
+            post_data_dictionary[fieldNames[field]] = datalist[field]
+
+    return post_data_dictionary
+
 if __name__ == '__main__':
 
     url = "http://localhost:12080/"
@@ -25,4 +37,4 @@ if __name__ == '__main__':
                             "secondSector":3,
                             "totalTime":5 }
 
-    post(url, post_data_dictionary)
+    post (url, post_data_dictionary)

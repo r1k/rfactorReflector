@@ -6,8 +6,9 @@ import hotLaps_db
 import produceReports
 import xml.sax.handler
 import sys
+import client
 
-class incomingRecord(xml.sax.handler.ContentHandler):
+class record(xml.sax.handler.ContentHandler):
     trackID = ""
     driver = ""
     classV = ""
@@ -36,8 +37,10 @@ class incomingRecord(xml.sax.handler.ContentHandler):
             self.theDate = attributes["theDate"].encode('ascii', 'ignore')
             self.totalLapTime = attributes["totalLapTime"].encode('ascii', 'ignore')
 
+
     def fromXMLString(self):
         return [self.trackID, self.driver, self.classV, self.carName, self.s1, self.s2, self.s3, self.lapTime, self.theDate, self.totalLapTime]
+
 
     def toXMLString(self):
         self.xmlString = "<result trackID=\"" + self.trackID
@@ -53,7 +56,6 @@ class incomingRecord(xml.sax.handler.ContentHandler):
         self.xmlString = self.xmlString + "\" />"
         return self.xmlString
 
-
 class rfactorHotlapsServer(threading.Thread):
 
     HOST = ''    #we are the host
@@ -63,16 +65,18 @@ class rfactorHotlapsServer(threading.Thread):
     MAX_CONNS = 16
     serv=[]
 
-    def __init__(self, addr, dataBaseFile, outputFilenames):
+    def __init__(self, addr, dataBaseFile, outputFilenames, postUrl):
         threading.Thread.__init__(self)
         self.ADDR = (addr[0], addr[1])
         self.dataBaseFile = dataBaseFile
         self.outputFilenames = outputFilenames
+        self.postUrl = postUrl
 
     def stopRunning(self):
         self.continueRunning = False
 
     def run(self):
+
         self.createSocketandListen()
         input_src = [self.serv]
         self.db = hotLaps_db.hotLapsDataBase(self.dataBaseFile)
@@ -83,10 +87,10 @@ class rfactorHotlapsServer(threading.Thread):
         print "Waiting for connections"
         while (self.continueRunning):
             try:
-                inputready = select.select(input_src,[],[],5.0)
+                inputready,outputready,exceptready = select.select(input_src,[],[],5.0)
                 for s in inputready:
                     if s == self.serv:
-                        conn = self.serv.accept()
+                        conn, addr = self.serv.accept()
                         input_src.append(conn)
                     else:
                         # handle all other sockets
@@ -111,7 +115,7 @@ class rfactorHotlapsServer(threading.Thread):
             Get an XML string d and extract data and insert it into the database
         """
         data = []
-        rec_handler = incomingRecord()
+        rec_handler = record()
         start = d.find('<result', 0)
         while start != -1:
             end = d.find('/>', start)
@@ -126,6 +130,8 @@ class rfactorHotlapsServer(threading.Thread):
                 start = d.find('<results', end)
 
         self.db.addLaps(data)
+        post_dictionary = client.prepare_data(data)
+        client.post(self.postUrl, post_dictionary)
 
     def setConnectionHandler(self, func):
         self.callback = func

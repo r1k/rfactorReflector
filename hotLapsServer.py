@@ -1,7 +1,8 @@
-#!/bin/env python
+#!/usr/bin/env python
 
 import ConfigParser
 import sys
+from socketHandler import rfactorHotlapsServer
 
 threads = []
 
@@ -20,20 +21,22 @@ def ReadConfigFileSection( config, section ):
             dict1[option] = None
     return dict1
 
-
 def parseCommand( cmd ):
 
     cmd = cmd.rstrip()
+    
     command = {}
-
+    
     if cmd[0:4].lower() == ("quit"):
         command['quit'] = True
+    
     elif cmd[0:5].lower() == "query":
         command['query'] = command[5:].rstrip()
+
     else:
         print "unknown command"
-
-    return command
+    
+    return command 
 
 
 
@@ -45,10 +48,10 @@ if __name__ == '__main__':
     if len(sys.argv) >= 2:
         #read config and overwrite the conf structure
         try:
-            configFile.read(sys.argv[1])
+            configFile.read(sys.argv[1]) 
             conf = []
             for cfg in configFile.sections():
-                row = ReadConfigFileSection(configFile, cfg)
+                row = ReadConfigFileSection(configFile, cfg)  
                 conf.append(row)
         except:
             print >> sys.stderr, "Problem reading config file - exiting!"
@@ -58,23 +61,21 @@ if __name__ == '__main__':
         exit()
     config = conf[0]
 
-    if not 'recordsstore' in config:
-        print >> sys.stderr, "No database file specified"
+    if not 'recordsstore' in config: 
+        print >> sys.stderr, "No database file specified"        
         exit()
 
 
-    # Now the main program
-
     ADDR = (config['server'], int(config['port']) )
-    sh = rfactorHotlapsServer( ADDR, config['recordsstore'], [config['hotlapsxml'], config['uniquelapsxml']] )
+    sh = rfactorHotlapsServer( ADDR, config['recordsstore'], [config['hotlapsxml'], config['uniquelapsxml']], config['postUrl'] )
     sh.start()
-
+    
     continueRunning = True
     while (continueRunning):
-
+    
         cmd = sys.stdin.readline()
         message = parseCommand(cmd)
-
+        
         if ('quit' in message) :
             if  message['quit'] == True:
                 print "quiting..."
