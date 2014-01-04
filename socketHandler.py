@@ -1,4 +1,3 @@
-
 from socket import socket,AF_INET,SOCK_STREAM
 import select
 import threading
@@ -130,8 +129,9 @@ class rfactorHotlapsServer(threading.Thread):
                 start = d.find('<results', end)
 
         self.db.addLaps(data)
-        post_dictionary = client.prepare_data(data)
-        client.post(self.postUrl, post_dictionary)
+        for lap in data:
+            post_dictionary = client.prepare_data(lap)
+            client.post(self.postUrl, post_dictionary)
 
     def setConnectionHandler(self, func):
         self.callback = func
