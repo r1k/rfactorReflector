@@ -20,6 +20,7 @@ def prepare_data( dataList ):
         if fieldNames[field] == "date":
             temp = dataList[field].split('-')
             date_string = '%(year)s-%(month)s-%(day)s' % {"year":temp[2], "month":temp[1], "day":temp[0]}
+            post_data_dictionary['date'] = date_string
         else:
             post_data_dictionary[fieldNames[field]] = datalist[field]
 
